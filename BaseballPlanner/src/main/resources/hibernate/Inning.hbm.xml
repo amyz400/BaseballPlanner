@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.baseballPlanner.tx.dao.InningDao" table="Inning">
+        <meta attribute="class-description">
+            This class contains the inning detail.
+        </meta>
+        <composite-id>
+            <key-many-to-one name="game" class="com.baseballPlanner.tx.dao.GameDao">
+                <column name="GAME_ID" />
+            </key-many-to-one>
+            <key-many-to-one name="player" class="com.baseballPlanner.tx.dao.PlayerDao">
+                <column name="PLAYER_ID" />
+            </key-many-to-one>
+        </composite-id>
+        <property name="inningNumber" column="INNING_NUMBER" type="int"/>
+        <property name="fieldPosition" column="FIELD_POSITION" type="string"/>
+    </class>
+</hibernate-mapping>
