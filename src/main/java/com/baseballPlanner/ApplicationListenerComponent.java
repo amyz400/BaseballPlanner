@@ -6,8 +6,6 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-
 /**
  * Created by aziring on 5/9/17.
  */

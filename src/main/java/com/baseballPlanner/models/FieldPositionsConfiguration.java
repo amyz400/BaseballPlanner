@@ -6,12 +6,13 @@ import java.util.List;
 /**
  * Created by aziring on 5/9/17.
  */
+
 public class FieldPositionsConfiguration {
 
-    private static List<FieldPositionEnum> infieldPositions = new ArrayList<>();
-    private static List<FieldPositionEnum> outfieldPositions = new ArrayList<>();
-    private static List<FieldPositionEnum> premiumPositions = new ArrayList<>();
-    private static List<FieldPositionEnum> miscPositions = new ArrayList<>();
+    public static List<FieldPositionEnum> infieldPositions = new ArrayList<>();
+    public static List<FieldPositionEnum> outfieldPositions = new ArrayList<>();
+    public static List<FieldPositionEnum> premiumPositions = new ArrayList<>();
+    public static List<FieldPositionEnum> miscPositions = new ArrayList<>();
 
     public static void populateFieldPositions(List<FieldPositionEnum> inInfieldPositions,
                                               List<FieldPositionEnum> inOutfieldPositions,

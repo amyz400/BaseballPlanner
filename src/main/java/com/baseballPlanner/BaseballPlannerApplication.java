@@ -15,9 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @ComponentScan({"com.baseballPlanner.service", "com.baseballPlanner.web"})
 public class BaseballPlannerApplication extends SpringBootServletInitializer {
 
-    public static void main(String[] args) {
-            SpringApplication.run(BaseballPlannerApplication.class, args);
-        }
+    public static void main(String[] args) { SpringApplication.run(BaseballPlannerApplication.class, args);  }
 
     @Bean
     public RestTemplate restTemplate() {
@@ -28,5 +26,4 @@ public class BaseballPlannerApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(BaseballPlannerApplication.class);
     }
-
 }

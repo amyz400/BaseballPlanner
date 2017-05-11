@@ -1,18 +1,18 @@
-drop database baseball_season;
+drop database if exists baseball_season;
 create database baseball_season;
 use baseball_season;
 
 create table PLAYER (
-	 ID INT NOT NULL auto_increment,
-   LAST_NAME VARCHAR(25) default NOT NULL,
-   FIRST_NAME VARCHAR(25) default NULL,
-   TIMES_IN_PREMIUM  INT  default NULL,
+	 ID INT auto_increment NOT NULL,
+   LAST_NAME VARCHAR(25)  NOT NULL,
+   FIRST_NAME VARCHAR(25)  NULL,
+   TIMES_IN_PREMIUM  INT   NULL,
    PRIMARY KEY (id)
 );
 
 create table GAME (
   ID INT NOT NULL auto_increment,
-  DATE_PLAYER NOT NULL DATE,
+  DATE_PLAYER DATE NOT NULL ,
   LOCATION VARCHAR(25) NULL,
   PRIMARY KEY (id)
 );

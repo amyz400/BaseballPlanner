@@ -1,6 +1,5 @@
 package com.baseballPlanner.tx.dao;
 
-import javax.ws.rs.DefaultValue;
 
 /**
  * Created by aziring on 5/9/17.
@@ -10,9 +9,7 @@ public class PlayerDao {
     private int id;
     private String lastName;
     private String firstName;
-
-    @DefaultValue("1")
-    private int timesInPremium;
+    private int timesInPremium = 1;
 
 
     public int getId() {
