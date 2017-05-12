@@ -1,6 +1,10 @@
 package com.baseballPlanner.tx.dao;
 
 
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
 /**
  * Created by aziring on 5/9/17.
  */
@@ -10,7 +14,6 @@ public class PlayerDao {
     private String lastName;
     private String firstName;
     private int timesInPremium = 1;
-
 
     public int getId() {
         return id;
