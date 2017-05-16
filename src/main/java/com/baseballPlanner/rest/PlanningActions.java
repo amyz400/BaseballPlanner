@@ -1,6 +1,8 @@
 package com.baseballPlanner.rest;
 
 import com.baseballPlanner.models.GameModel;
+import com.baseballPlanner.service.GameService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,9 +16,17 @@ import java.time.LocalDate;
 @RestController
 public class PlanningActions {
 
+    @Autowired
+    private GameService gameService;
+
+    @RequestMapping(value = "/check")
+    public String check() {
+        return "SUCCESS";
+    }
+
     @RequestMapping(value = "/createGame", method = RequestMethod.GET)
     public GameModel createGame(@RequestParam LocalDate datePlayed) {
 
-        return null;
+        return gameService.createGame(datePlayed);
     }
 }

@@ -28,8 +28,5 @@ public class ApplicationListenerComponent implements ApplicationListener<Applica
         // default population of premium positions
         FieldPositionsConfiguration.addPremiumPosition(FieldPositionEnum.FIRSTB);
         FieldPositionsConfiguration.addPremiumPosition(FieldPositionEnum.PITCHER);
-
-        // default population of misc positions
-        FieldPositionsConfiguration.addMiscPosition(FieldPositionEnum.BENCH);
     }
 }

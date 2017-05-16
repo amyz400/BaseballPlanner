@@ -12,16 +12,13 @@ public class FieldPositionsConfiguration {
     public static List<FieldPositionEnum> infieldPositions = new ArrayList<>();
     public static List<FieldPositionEnum> outfieldPositions = new ArrayList<>();
     public static List<FieldPositionEnum> premiumPositions = new ArrayList<>();
-    public static List<FieldPositionEnum> miscPositions = new ArrayList<>();
 
     public static void populateFieldPositions(List<FieldPositionEnum> inInfieldPositions,
                                               List<FieldPositionEnum> inOutfieldPositions,
-                                              List<FieldPositionEnum> inPremiumPositions,
-                                              List<FieldPositionEnum> inMiscPositions) {
+                                              List<FieldPositionEnum> inPremiumPositions) {
         infieldPositions.addAll(inInfieldPositions);
         outfieldPositions.addAll(inOutfieldPositions);
         premiumPositions.addAll(inPremiumPositions);
-        miscPositions.addAll(inMiscPositions);
     }
 
     public static void addInfieldPosition(FieldPositionEnum fieldPosition) {
@@ -34,10 +31,6 @@ public class FieldPositionsConfiguration {
 
     public static void addPremiumPosition(FieldPositionEnum fieldPosition) {
         premiumPositions.add(fieldPosition);
-    }
-
-    public static void addMiscPosition(FieldPositionEnum fieldPosition) {
-        miscPositions.add(fieldPosition);
     }
 
 }
