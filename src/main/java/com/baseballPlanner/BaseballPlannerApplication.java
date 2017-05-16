@@ -7,7 +7,9 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
@@ -48,10 +50,11 @@ public class BaseballPlannerApplication extends SpringBootServletInitializer {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
         em.setPersistenceUnitName("baseballPersistenceUnit");
-        em.setPackagesToScan("com.baseballPlanner.tx.dao");
+        em.setPackagesToScan("com.baseballPlanner.tx.dao.*");
 
-        em.setPersistenceUnitName( "baseballPersistenceUnit" );
-        em.afterPropertiesSet();
+        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        em.setJpaVendorAdapter(vendorAdapter);
+        
         return em;
     }
     @Override
