@@ -1,13 +1,14 @@
 package com.baseballPlanner.tx.dao;
 
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Created by aziring on 5/9/17.
  */
-public class GameDao {
+public class GameDao implements Serializable{
 
     private int id;
     private LocalDateTime datePlayed;
@@ -16,6 +17,8 @@ public class GameDao {
     public int getId() {
         return id;
     }
+
+    public void setId(int id) { this.id = id; }
 
     public LocalDateTime getDatePlayed() {
         return datePlayed;
@@ -29,7 +32,7 @@ public class GameDao {
         return innings;
     }
 
-    public void setInningList(List<InningDao> innings) {
+    public void setInnings(List<InningDao> innings) {
         this.innings = innings;
     }
 }

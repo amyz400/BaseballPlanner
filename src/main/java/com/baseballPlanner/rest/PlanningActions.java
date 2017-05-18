@@ -19,7 +19,7 @@ public class PlanningActions {
     @Autowired
     private GameService gameService;
 
-    @RequestMapping(value = "/check")
+    @RequestMapping(value = "/check", method = RequestMethod.GET)
     public String check() {
         return "SUCCESS";
     }

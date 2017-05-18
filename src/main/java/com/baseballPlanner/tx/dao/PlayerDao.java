@@ -3,12 +3,13 @@ package com.baseballPlanner.tx.dao;
 
 import org.springframework.stereotype.Repository;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by aziring on 5/9/17.
  */
-public class PlayerDao {
+public class PlayerDao implements Serializable{
 
     private int id;
     private String lastName;
@@ -18,6 +19,8 @@ public class PlayerDao {
     public int getId() {
         return id;
     }
+
+    public void setId(int id) { this.id = id; }
 
     public String getLastName() {
         return lastName;
