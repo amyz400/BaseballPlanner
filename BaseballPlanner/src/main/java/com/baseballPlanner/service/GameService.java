@@ -5,11 +5,15 @@ import com.baseballPlanner.models.FieldPositionsConfiguration;
 import com.baseballPlanner.models.GameModel;
 import com.baseballPlanner.tx.dao.InningDao;
 import com.baseballPlanner.tx.dao.PlayerDao;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by amy on 5/11/17.
@@ -23,7 +27,8 @@ public class GameService {
     @Autowired
     private PlayerRepo playerRepo;
 
-    private Map<PlayerDao, FieldPositionEnum> prevInningPositionsMap = new HashMap<>();
+    private Map<PlayerDao, FieldPositionEnum> prevInningPositionsMap = new DualHashBidiMap<PlayerDao, FieldPositionEnum>() {
+    };
 
     public GameModel createGame(LocalDate datePlayed) {
         GameModel gameModel = new GameModel();
@@ -31,7 +36,7 @@ public class GameService {
         List<InningDao> prevModel = null;
         for (int i=0; i<6; i++) {
 
-            gameModel.getInningMap().put(i, createInning(prevModel));
+            gameModel.getInningMap().put(i+1, createInning(prevModel));
         }
 
         // save game Model
@@ -40,7 +45,8 @@ public class GameService {
 
     private Map<PlayerDao, FieldPositionEnum> createInning(List<InningDao> prevInning) {
 
-        Map<PlayerDao, FieldPositionEnum> currentInningMap = new HashMap<>();
+
+        DualHashBidiMap<PlayerDao, FieldPositionEnum> currentInningMap =  new DualHashBidiMap<>();
 
         // get all possible FieldPositions to make sure they are all used up
         List<FieldPositionEnum> infieldPositions = new ArrayList<>();
@@ -77,7 +83,18 @@ public class GameService {
         }
         prevInningPositionsMap.clear();
         prevInningPositionsMap.putAll(currentInningMap);
-
         return currentInningMap;
+        //return sortCurrentInning(currentInningMap);
+    }
+
+    private  Map<PlayerDao, FieldPositionEnum> sortCurrentInning(Map<PlayerDao, FieldPositionEnum> inning) {
+        Map<PlayerDao, FieldPositionEnum> sortedMap = new LinkedHashMap<>();
+
+        //sort by key, a,b,c..., and put it into the "result" map
+        inning.entrySet().stream()
+                .sorted(Map.Entry.<PlayerDao, FieldPositionEnum>comparingByKey())
+                .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+        return sortedMap;
+
     }
 }

@@ -52,8 +52,8 @@ public class GameModel {
         for (Map.Entry<Integer, Map<PlayerDao, FieldPositionEnum>> entry : inningMap.entrySet()) {
             gameResults.append("\n").append("Inning: ").append(entry.getKey()).append("\n");
             for (Map.Entry<PlayerDao, FieldPositionEnum> playerEntry : entry.getValue().entrySet()) {
-                gameResults.append("Position: ").append(playerEntry.getValue())
-                        .append(" Player: ").append(playerEntry.getKey().getLastName()).append(", ").append(playerEntry.getKey().getFirstName()).append("\n");
+                gameResults.append(String.format("%-10s", playerEntry.getValue()))
+                    .append(playerEntry.getKey().getLastName()).append(", ").append(playerEntry.getKey().getFirstName()).append("\n");
             }
         }
         return gameResults.toString();

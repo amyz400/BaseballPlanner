@@ -10,16 +10,20 @@ import java.util.List;
 /**
  * Created by aziring on 5/9/17.
  */
-public class PlayerDao implements Serializable{
+public class PlayerDao implements Serializable, Comparable<PlayerDao>{
 
-    @JsonIgnore
     private int id;
-    
     private String lastName;
     private String firstName;
-
-    @JsonIgnore
     private int timesInPremium = 1;
+
+    @Override
+    public int compareTo( final PlayerDao p) {
+        String name = lastName + ", " + firstName;
+        String compareName = p.getLastName() + ", " + p.getFirstName();
+        int retVal = name.compareTo(compareName);
+        return retVal;
+    }
 
     public int getId() {
         return id;
