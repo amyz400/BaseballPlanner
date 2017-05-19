@@ -22,6 +22,7 @@ public class FieldPositionsConfiguration {
     }
 
     public static void addInfieldPosition(FieldPositionEnum fieldPosition) {
+
         infieldPositions.add(fieldPosition);
     }
 

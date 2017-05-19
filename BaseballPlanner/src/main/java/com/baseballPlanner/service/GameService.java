@@ -26,16 +26,19 @@ public class GameService {
     private Map<PlayerDao, FieldPositionEnum> prevInningPositionsMap = new HashMap<>();
 
     public GameModel createGame(LocalDate datePlayed) {
-        GameModel gameModel = null;
+        GameModel gameModel = new GameModel();
+        gameModel.setDatePlayed(datePlayed);
         List<InningDao> prevModel = null;
         for (int i=0; i<6; i++) {
-            List<InningDao> currentInning = createInning(prevModel);
-            gameModel.getInningList().add(currentInning);
+
+            gameModel.getInningMap().put(i, createInning(prevModel));
         }
+
+        // save game Model
         return gameModel;
     }
 
-    private List<InningDao> createInning(List<InningDao> prevInning) {
+    private Map<PlayerDao, FieldPositionEnum> createInning(List<InningDao> prevInning) {
 
         Map<PlayerDao, FieldPositionEnum> currentInningMap = new HashMap<>();
 
@@ -47,22 +50,18 @@ public class GameService {
         List<FieldPositionEnum> premiumPositions = new ArrayList<>();
         premiumPositions.addAll(FieldPositionsConfiguration.premiumPositions);
 
-        List<InningDao> inningList = new ArrayList<>();
-
         // get players
-        Iterable<PlayerDao> players = playerRepo.findAll();
-        List<PlayerDao> playerList = new ArrayList<>();
-        players.forEach(playerList::add);
+        List<PlayerDao> players = (List<PlayerDao>)playerRepo.findAll();
         // shuffle collection to get a random order
-        Collections.shuffle(playerList);
+        Collections.shuffle(players);
 
-        for(PlayerDao player : playerList) {
+        for(PlayerDao player : players) {
 
             // what position did the player have last inning
             FieldPositionEnum prevPosition = prevInningPositionsMap.get(player.getId());
 
             // if not outfield, then try and pick outfield first
-            if (-1 == FieldPositionsConfiguration.outfieldPositions.indexOf(prevPosition) &&
+            if ((null == prevPosition || -1 == FieldPositionsConfiguration.outfieldPositions.indexOf(prevPosition)) &&
                     !outfieldPositions.isEmpty()){
                 currentInningMap.put(player, outfieldPositions.remove(0));
             } else if (!premiumPositions.isEmpty()) {
@@ -77,8 +76,8 @@ public class GameService {
             // create and save InningDao
         }
         prevInningPositionsMap.clear();
-        currentInningMap.putAll(currentInningMap);
+        prevInningPositionsMap.putAll(currentInningMap);
 
-        return inningList;
+        return currentInningMap;
     }
 }

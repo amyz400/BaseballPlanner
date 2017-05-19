@@ -4,7 +4,7 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="com.baseballPlanner.tx.dao.PlayerDao" table="Player">
+    <class name="com.baseballPlanner.tx.dao.PlayerDao" table="PLAYER">
         <meta attribute="class-description">
             This class contains the player detail.
         </meta>

@@ -25,8 +25,12 @@ public class PlanningActions {
     }
 
     @RequestMapping(value = "/createGame", method = RequestMethod.GET)
-    public GameModel createGame(@RequestParam LocalDate datePlayed) {
+    public String createGame(@RequestParam(required = false) LocalDate datePlayed) {
 
-        return gameService.createGame(datePlayed);
+        if (null == datePlayed) {
+            return gameService.createGame(LocalDate.now()).formatGame();
+        } else {
+            return gameService.createGame(datePlayed).formatGame();
+        }
     }
 }

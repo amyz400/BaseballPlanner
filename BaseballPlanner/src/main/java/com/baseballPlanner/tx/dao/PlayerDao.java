@@ -1,6 +1,7 @@
 package com.baseballPlanner.tx.dao;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
@@ -11,9 +12,13 @@ import java.util.List;
  */
 public class PlayerDao implements Serializable{
 
+    @JsonIgnore
     private int id;
+    
     private String lastName;
     private String firstName;
+
+    @JsonIgnore
     private int timesInPremium = 1;
 
     public int getId() {
