@@ -27,26 +27,28 @@ public class GameService {
     @Autowired
     private PlayerRepo playerRepo;
 
-    private Map<PlayerDao, FieldPositionEnum> prevInningPositionsMap = new DualHashBidiMap<PlayerDao, FieldPositionEnum>() {
+    private GameModel gameModel;
+
+    private Map<PlayerDao, FieldPositionEnum> prevInningPositionsMap = new HashMap<PlayerDao, FieldPositionEnum>() {
     };
 
     public GameModel createGame(LocalDate datePlayed) {
-        GameModel gameModel = new GameModel();
+
+        gameModel = new GameModel();
         gameModel.setDatePlayed(datePlayed);
         List<InningDao> prevModel = null;
         for (int i=0; i<6; i++) {
-
-            gameModel.getInningMap().put(i+1, createInning(prevModel));
+            gameModel.getInningMap().put(i+1, createInning());
         }
 
         // save game Model
         return gameModel;
     }
 
-    private Map<PlayerDao, FieldPositionEnum> createInning(List<InningDao> prevInning) {
+    private Map<PlayerDao, FieldPositionEnum> createInning() { //List<InningDao> prevInning) {
 
 
-        DualHashBidiMap<PlayerDao, FieldPositionEnum> currentInningMap =  new DualHashBidiMap<>();
+        Map<PlayerDao, FieldPositionEnum> currentInningMap =  new HashMap<>();
 
         // get all possible FieldPositions to make sure they are all used up
         List<FieldPositionEnum> infieldPositions = new ArrayList<>();
@@ -64,8 +66,10 @@ public class GameService {
         for(PlayerDao player : players) {
 
             // what position did the player have last inning
-            FieldPositionEnum prevPosition = prevInningPositionsMap.get(player.getId());
-
+            FieldPositionEnum prevPosition = prevInningPositionsMap.get(player);
+            List<FieldPositionEnum> prevPositions = getPreviousPositions(player, gameModel.getInningMap().size()-1);
+            //TODO  use prevPositions list in decision making
+            
             // if not outfield, then try and pick outfield first
             if ((null == prevPosition || -1 == FieldPositionsConfiguration.outfieldPositions.indexOf(prevPosition)) &&
                     !outfieldPositions.isEmpty()){
@@ -79,12 +83,23 @@ public class GameService {
                 currentInningMap.put(player, FieldPositionEnum.BENCH);
             }
 
-            // create and save InningDao
+            // TODO create and save InningDao
         }
         prevInningPositionsMap.clear();
         prevInningPositionsMap.putAll(currentInningMap);
-        return currentInningMap;
-        //return sortCurrentInning(currentInningMap);
+
+        return sortCurrentInning(currentInningMap);
+    }
+
+    private List<FieldPositionEnum> getPreviousPositions(PlayerDao player, int prevInning) {
+        List<FieldPositionEnum> previousPositions = new ArrayList<>();
+        int i = prevInning;
+        while (i>0) {
+            FieldPositionEnum pos = gameModel.getInningMap().get(i).get(player);
+            previousPositions.add(pos);
+            i--;
+        }
+        return previousPositions;
     }
 
     private  Map<PlayerDao, FieldPositionEnum> sortCurrentInning(Map<PlayerDao, FieldPositionEnum> inning) {
