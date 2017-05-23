@@ -17,7 +17,8 @@ public enum FieldPositionEnum {
     SS ("Shortstop"),
     CATCHER ("Catcher"),
     PITCHER ("Pitcher"),
-    BENCH ("Bench");
+    BENCH ("Bench"),
+    NONE ("None");
 
     private final String value;
     private static final Map<String, FieldPositionEnum> enumMap = new HashMap<>();
