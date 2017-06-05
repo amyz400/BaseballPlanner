@@ -31,14 +31,14 @@ public class GameService {
 
     private GameModel gameModel;
 
-    private Map<Integer, PlayerState> playerStateMap = new HashMap<>();
+    private Map<Integer, PlayerState> playerStateMap;
 
     public GameModel createGame(LocalDate datePlayed) {
 
+        playerStateMap = new HashMap<>();
         gameModel = new GameModel();
         gameModel.setDatePlayed(datePlayed);
 
-        List<InningDao> prevModel = null;
         for (int i=0; i<6; i++) {
             gameModel.getInningMap().put(i+1, createInning());
         }
@@ -50,6 +50,7 @@ public class GameService {
     private List<FieldPositionEnum> populatePositions(List<FieldPositionEnum> positions) {
         List<FieldPositionEnum> positionList = new ArrayList<>();
         positionList.addAll(positions);
+        Collections.shuffle(positions);
 
         return positionList;
     }
@@ -81,6 +82,7 @@ public class GameService {
             currentInningMap.put(player, currentPosition);
             playerState.getInningPositions().push(currentPosition);
         }
+        inningCleanup(currentInningMap, playerStateMap, outfieldPositions, infieldPositions, premiumPositions);
         currentInningMap = sortCurrentInning(currentInningMap);
         return currentInningMap;
     }
@@ -90,20 +92,28 @@ public class GameService {
         List<PlayerDao> tempPlayers = (List<PlayerDao>)playerRepo.findAll();
         Collections.shuffle(tempPlayers);
 
-        List<PlayerDao> prevInningBenched = findPrevInningBenchedPlayers();
-        finalPlayers.addAll(prevInningBenched);
-        tempPlayers.removeAll(prevInningBenched);
+        List<PlayerState> prevInningBenched = findPrevInningBenchedPlayers(playerStateMap);
+        // make this a lambda
+        for (PlayerState ps : prevInningBenched) {
+            finalPlayers.add(ps.getPlayer());
+            tempPlayers.remove(ps.getPlayer());
+        }
         // any player list in the temp list should be added to the final list
         finalPlayers.addAll(tempPlayers);
 
        return finalPlayers;
     }
 
-    private List<PlayerDao> findPrevInningBenchedPlayers() {
-        List<PlayerDao> benched = new ArrayList<>();
-
+    private List<PlayerState> findPrevInningBenchedPlayers(Map<Integer, PlayerState> playerStateMap) {
+        List<PlayerState> benched = new ArrayList<>();
+        for(Map.Entry<Integer, PlayerState> entry : playerStateMap.entrySet()) {
+            if (entry.getValue().getInningPositions().getFirst() == FieldPositionEnum.BENCH) {
+                benched.add(entry.getValue());
+            }
+        }
         return benched;
     }
+
     private PlayerState initializePlayerState(PlayerDao player) {
         PlayerState ps = new PlayerState();
         ps.setPlayer(player);
@@ -120,7 +130,7 @@ public class GameService {
         LinkedList<FieldPositionEnum> previousPositions = new LinkedList<>();
         previousPositions.addAll(playerState.getInningPositions());
         FieldPositionEnum prevPosition = FieldPositionEnum.NONE;
-        if (previousPositions.size() > 0) { prevPosition = previousPositions.pop(); }
+        if (previousPositions.size() > 0) { prevPosition = previousPositions.get(0); }
 
         // if not outfield, then try and pick outfield first
         if (((FieldPositionEnum.NONE == prevPosition && !outfieldPositions.isEmpty()) ||
@@ -129,22 +139,66 @@ public class GameService {
                         -1 == previousPositions.lastIndexOf(outfieldPositions.get(0)))){
             pos = outfieldPositions.remove(0);
 
-        } else if (!premiumPositions.isEmpty() &&
+        } // if there are premium positions available and this player hasn't exceeded his configured number of times in a premium position
+        // and the player's last position wasn't in this grouping, then give a premium position
+        else if (!premiumPositions.isEmpty() &&
+                -1 == FieldPositionsConfiguration.premiumPositions.indexOf(prevPosition) &&
                 -1 == previousPositions.lastIndexOf(premiumPositions.get(0)) &&
                 playerState.getHowManyTimesInPremiumPositions() < playerState.getPlayer().getTimesInPremium()) {
             pos = premiumPositions.remove(0);
             playerState.addToHowManyTimesInPremiumPositions(1);
 
-        } else if (!infieldPositions.isEmpty() &&
+        } // if there are infield positions left and the player's last position wasn't in the infield, then give an infield position
+        else if (!infieldPositions.isEmpty() &&
+                -1 == FieldPositionsConfiguration.infieldPositions.indexOf(prevPosition) &&
                 -1 == previousPositions.lastIndexOf(infieldPositions.get(0))) {
             pos = infieldPositions.remove(0);
 
         } else {
-                // if no positions are left then the player is on the bench
+            // if no positions are left then the player is on the bench
+            // DON'T WORRY, we'll loosen the rules to clean up the inning and ensure all positions have a player
             pos = FieldPositionEnum.BENCH;
             playerState.addToHowManyTimesOnBench(1);
         }
         return pos;
+    }
+
+    private void inningCleanup(Map<PlayerDao, FieldPositionEnum> currentInningMap, Map<Integer, PlayerState> playerStateMap,
+                               List<FieldPositionEnum> outfieldPositions, List<FieldPositionEnum> infieldPositions,
+                               List<FieldPositionEnum> premiumPositions) {
+
+        // do any of the position lists still have entries?
+        // if yes, find benched players and see how many times they have benched
+        List<PlayerState> benchedPlayers = findPrevInningBenchedPlayers(playerStateMap);
+
+        // user a comparator to order this list
+        //sort by key, a,b,c..., and put it into the "result" map
+        List<PlayerState> sortedList = new ArrayList<>();
+        benchedPlayers.stream()
+                .sorted()
+                .forEachOrdered(x -> sortedList.add(x));
+
+        for (Iterator<PlayerState> iterator = sortedList.iterator(); iterator.hasNext();) {
+            PlayerState ps = iterator.next();
+            if (!premiumPositions.isEmpty()) {
+                currentInningMap.put(ps.getPlayer(), premiumPositions.get(0));
+                iterator.remove();
+                premiumPositions.remove(0);
+                ps.addToHowManyTimesInPremiumPositions(1);
+                ps.deleteFromHowManyTimesOnBench(1);
+            } else if (!infieldPositions.isEmpty()) {
+                currentInningMap.put(ps.getPlayer(), infieldPositions.get(0));
+                iterator.remove();
+                infieldPositions.remove(0);
+                ps.deleteFromHowManyTimesOnBench(1);
+
+            } else if (!outfieldPositions.isEmpty()) {
+                currentInningMap.put(ps.getPlayer(), outfieldPositions.get(0));
+                iterator.remove();
+                outfieldPositions.remove(0);
+                ps.deleteFromHowManyTimesOnBench(1);
+            }
+        }
     }
 
     private  Map<PlayerDao, FieldPositionEnum> sortCurrentInning(Map<PlayerDao, FieldPositionEnum> inning) {

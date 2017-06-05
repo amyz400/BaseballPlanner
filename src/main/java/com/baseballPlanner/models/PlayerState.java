@@ -2,24 +2,37 @@ package com.baseballPlanner.models;
 
 import com.baseballPlanner.tx.dao.PlayerDao;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /**
  * Created by aziring on 5/21/17.
  */
-public class PlayerState {
+public class PlayerState implements Serializable, Comparable<PlayerState>{
 
     private int howManyTimesInPremiumPositions;
     private int howManyTimesOnBench;
     private LinkedList<FieldPositionEnum> inningPositions;
     private PlayerDao player;
 
+    @Override
+    public int compareTo( final PlayerState p) {
+        int retVal = p.getHowManyTimesOnBench() - howManyTimesOnBench;
+        return retVal;
+    }
+
     public void addToHowManyTimesInPremiumPositions(int i) {
+
         this.howManyTimesInPremiumPositions += i;
     }
 
     public void addToHowManyTimesOnBench(int i) {
+
         this.howManyTimesOnBench += i;
+    }
+
+    public void deleteFromHowManyTimesOnBench(int i) {
+        this.howManyTimesOnBench -= i;
     }
 
     public int getHowManyTimesInPremiumPositions() {
