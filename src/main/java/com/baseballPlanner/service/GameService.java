@@ -33,21 +33,43 @@ public class GameService {
 
     private Map<Integer, PlayerState> playerStateMap;
 
+    /**
+     * Create a game
+     * @param datePlayed Date that the game is being played
+     * @return a Model of the game
+     */
     public GameModel createGame(LocalDate datePlayed) {
+
+        return createGame(datePlayed, new ArrayList<>());
+    }
+
+    /**
+     * Create a game
+     * @param datePlayed Date that the game is being played
+     * @param playerIds List of player ids of players that are playing in the game; list is empty if all players are playing
+     * @return a Model of the game
+     */
+    public GameModel createGame(LocalDate datePlayed, List<Integer> playerIds) {
 
         playerStateMap = new HashMap<>();
         gameModel = new GameModel();
         gameModel.setDatePlayed(datePlayed);
 
         for (int i=0; i<6; i++) {
-            gameModel.getInningMap().put(i+1, createInning());
+            gameModel.getInningMap().put(i+1, createInning(playerIds));
         }
 
         // save game Model
         return gameModel;
+
     }
 
-    private List<FieldPositionEnum> populatePositions(List<FieldPositionEnum> positions) {
+    /**
+     * Populate and shuffle a list of positions
+     * @param positions static list to use to populate
+     * @return shuffled positions
+     */
+    public List<FieldPositionEnum> populatePositions(List<FieldPositionEnum> positions) {
         List<FieldPositionEnum> positionList = new ArrayList<>();
         positionList.addAll(positions);
         Collections.shuffle(positions);
@@ -55,7 +77,13 @@ public class GameService {
         return positionList;
     }
 
-    private Map<PlayerDao, FieldPositionEnum> createInning() {
+    /**
+     * Create an innning for the game.  Pick positions for all the players and then sort the inning using the
+     * same comparator as all the other innings.
+     * @param playersInGame List of players that are playing this game
+     * @return Map of players and their selected positions for the inning
+     */
+    private Map<PlayerDao, FieldPositionEnum> createInning(List<Integer> playersInGame) {
 
         Map<PlayerDao, FieldPositionEnum> currentInningMap =  new HashMap<>();
 
@@ -66,7 +94,7 @@ public class GameService {
 
         // shuffle players to get a random order but put players with their last position on the BENCH at the front
         // to avoid them getting the bench twice
-        List<PlayerDao> players = shufflePlayers(playerStateMap);
+        List<PlayerDao> players = shufflePlayers(playerStateMap, playersInGame);
 
         for(PlayerDao player : players) {
 
@@ -87,9 +115,22 @@ public class GameService {
         return currentInningMap;
     }
 
-    private List<PlayerDao> shufflePlayers(Map<Integer, PlayerState> playerStateMap) {
+    /**
+     * Return a shuffled list of all the players playing this game.  If a player was benched last inning, make sure
+     * they are at the top of the list to get a position to reduce chance that they'll be benched again.
+     * @param playerStateMap mapping of all the players and information about previous game play
+     * @param playersInGame Subset of players in the game. If this list is empty, use all the available players
+     * @return Shuffle dlist of players
+     */
+    public List<PlayerDao> shufflePlayers(Map<Integer, PlayerState> playerStateMap, List<Integer> playersInGame) {
+
         List<PlayerDao> finalPlayers = new ArrayList<>();
-        List<PlayerDao> tempPlayers = (List<PlayerDao>)playerRepo.findAll();
+        List<PlayerDao> tempPlayers = null;
+        if (playersInGame.isEmpty()) {
+            tempPlayers = (List<PlayerDao>)playerRepo.findAll();
+        } else {
+            tempPlayers = (List<PlayerDao>)playerRepo.findAll(playersInGame);
+        }
         Collections.shuffle(tempPlayers);
 
         List<PlayerState> prevInningBenched = findPrevInningBenchedPlayers(playerStateMap);
@@ -104,7 +145,12 @@ public class GameService {
        return finalPlayers;
     }
 
-    private List<PlayerState> findPrevInningBenchedPlayers(Map<Integer, PlayerState> playerStateMap) {
+    /**
+     * Find list of players who were benched last inning
+     * @param playerStateMap mapping of all the players and information about previous game play
+     * @return list of players who were benched
+     */
+    public List<PlayerState> findPrevInningBenchedPlayers(Map<Integer, PlayerState> playerStateMap) {
         List<PlayerState> benched = new ArrayList<>();
         for(Map.Entry<Integer, PlayerState> entry : playerStateMap.entrySet()) {
             if (entry.getValue().getInningPositions().getFirst() == FieldPositionEnum.BENCH) {
@@ -114,7 +160,12 @@ public class GameService {
         return benched;
     }
 
-    private PlayerState initializePlayerState(PlayerDao player) {
+    /**
+     * Initialize a player state for the start of a game.
+     * @param player Player that this state is being created for
+     * @return initialized player state
+     */
+    public PlayerState initializePlayerState(PlayerDao player) {
         PlayerState ps = new PlayerState();
         ps.setPlayer(player);
         ps.setHowManyTimesInPremiumPositions(0);
@@ -123,7 +174,25 @@ public class GameService {
         return ps;
     }
 
-    private FieldPositionEnum pickPosition(PlayerState playerState, List<FieldPositionEnum> outfieldPositions,
+    /**
+     * Pick a position based on the following rules for a player:
+     * <ol>
+     * <li>If there are outfield positions, the player's last inning's position wasn't in the outfield, and the player has never
+     * played in the next available outfield position, then pick the next outfield position.</li>
+     * <li>If there are premium positions available, this player hasn't exceeded his times in a premium position, the player's
+     * last innning's position wasn't in a premium position, and the player hasn't played the next premium poistion, then pick
+     * the next premium position.</li>
+     * <li>If there are infield positions, the player's last inning's position wasn't in the infield, and the player has never
+     * played in the next available infield position, then pick the next infield position.</li>
+     * <li>If the player didn't meet any of the other rules, then put him in on the bench.</li>
+     * </ol>
+     * @param playerState The state of the game for the player we are picking a position for.
+     * @param outfieldPositions List of all the available outfield positions for this inning.
+     * @param infieldPositions List of all the available infield positions for this inning.
+     * @param premiumPositions List of all the available premium positions for this inning.
+     * @return Position selected for this player
+     */
+    public FieldPositionEnum pickPosition(PlayerState playerState, List<FieldPositionEnum> outfieldPositions,
                                            List<FieldPositionEnum> infieldPositions, List<FieldPositionEnum> premiumPositions) {
         FieldPositionEnum pos = FieldPositionEnum.NONE;
 
@@ -163,7 +232,19 @@ public class GameService {
         return pos;
     }
 
-    private void inningCleanup(Map<PlayerDao, FieldPositionEnum> currentInningMap, Map<Integer, PlayerState> playerStateMap,
+    /**
+     * pickPosition does not work perfectly, especially in the later innings of the game.  Not all available positions
+     * will be assigned, and yet, some players will be benched.  This method will look at all the benched players and
+     * assign them any remaining positions.  Players that have been benched the most times are given positions first.
+     * The premium positions are assigned first, then the infield positions and finally, the outfield positions.  It is
+     * assumed that order is the most important in where players should be playing.
+     * @param currentInningMap Which players are playing which positions for the current inning
+     * @param playerStateMap mapping of all the players and information about previous game play
+     * @param outfieldPositions List of any available outfield positions
+     * @param infieldPositions List of any available infield positions
+     * @param premiumPositions List of any available premium positions
+     */
+    public void inningCleanup(Map<PlayerDao, FieldPositionEnum> currentInningMap, Map<Integer, PlayerState> playerStateMap,
                                List<FieldPositionEnum> outfieldPositions, List<FieldPositionEnum> infieldPositions,
                                List<FieldPositionEnum> premiumPositions) {
 
@@ -201,7 +282,12 @@ public class GameService {
         }
     }
 
-    private  Map<PlayerDao, FieldPositionEnum> sortCurrentInning(Map<PlayerDao, FieldPositionEnum> inning) {
+    /**
+     * Sort the current inning map by player name.
+     * @param inning map of the current inning with position assignments to player
+     * @return sorted map
+     */
+    public  Map<PlayerDao, FieldPositionEnum> sortCurrentInning(Map<PlayerDao, FieldPositionEnum> inning) {
         Map<PlayerDao, FieldPositionEnum> sortedMap = new LinkedHashMap<>();
 
         //sort by key, a,b,c..., and put it into the "result" map

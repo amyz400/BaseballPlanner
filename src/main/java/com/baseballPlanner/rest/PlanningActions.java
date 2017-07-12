@@ -6,10 +6,7 @@ import com.baseballPlanner.service.PlayerRepo;
 import com.baseballPlanner.service.PlayerService;
 import com.baseballPlanner.tx.dao.PlayerDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,6 +35,21 @@ public class PlanningActions {
             return gameService.createGame(LocalDate.now()).formatGame();
         } else {
             return gameService.createGame(datePlayed).formatGame();
+        }
+    }
+
+    @RequestMapping(value = "/createGame", method = RequestMethod.GET)
+    public String createGame(@RequestParam(required = false) LocalDate datePlayed, @RequestBody List<Integer> playerIds) {
+
+        LocalDate gameDate = datePlayed;
+        if (null == gameDate) {
+            gameDate = LocalDate.now();
+        }
+
+        if (playerIds != null && !playerIds.isEmpty()) {
+                return gameService.createGame(gameDate, playerIds).formatGame();
+        } else {
+            return gameService.createGame(gameDate).formatGame();
         }
     }
 
