@@ -4,18 +4,17 @@ import com.baseballPlanner.models.FieldPositionEnum;
 import com.baseballPlanner.models.FieldPositionsConfiguration;
 import com.baseballPlanner.models.GameModel;
 import com.baseballPlanner.models.PlayerState;
+import com.baseballPlanner.service.repositories.PlayerRepo;
+import com.baseballPlanner.tx.dao.GameDao;
 import com.baseballPlanner.tx.dao.InningDao;
 import com.baseballPlanner.tx.dao.PlayerDao;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import java.time.LocalDateTime;
+import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by amy on 5/11/17.
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 public class GameService {
 
     @Autowired
-    private GameService gameService;
+    private GameDataService gameDataService;
 
     @Autowired
     private PlayerRepo playerRepo;
@@ -60,6 +59,8 @@ public class GameService {
         }
 
         // save game Model
+        gameDataService.saveGame(gameModel);
+
         return gameModel;
 
     }
@@ -153,7 +154,8 @@ public class GameService {
     public List<PlayerState> findPrevInningBenchedPlayers(Map<Integer, PlayerState> playerStateMap) {
         List<PlayerState> benched = new ArrayList<>();
         for(Map.Entry<Integer, PlayerState> entry : playerStateMap.entrySet()) {
-            if (entry.getValue().getInningPositions().getFirst() == FieldPositionEnum.BENCH) {
+            if (entry.getValue().getInningPositions() != null &&
+                entry.getValue().getInningPositions().getFirst() == FieldPositionEnum.BENCH) {
                 benched.add(entry.getValue());
             }
         }
@@ -297,4 +299,6 @@ public class GameService {
         return sortedMap;
 
     }
+
+
 }

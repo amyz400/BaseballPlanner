@@ -1,9 +1,9 @@
 package com.baseballPlanner.service;
 
+import com.baseballPlanner.service.repositories.PlayerRepo;
 import com.baseballPlanner.tx.dao.PlayerDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.ArrayList;
 import java.util.List;

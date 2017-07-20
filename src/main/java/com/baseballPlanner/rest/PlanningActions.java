@@ -1,8 +1,6 @@
 package com.baseballPlanner.rest;
 
-import com.baseballPlanner.models.GameModel;
 import com.baseballPlanner.service.GameService;
-import com.baseballPlanner.service.PlayerRepo;
 import com.baseballPlanner.service.PlayerService;
 import com.baseballPlanner.tx.dao.PlayerDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +36,7 @@ public class PlanningActions {
         }
     }
 
-    @RequestMapping(value = "/createGame", method = RequestMethod.GET)
+    @RequestMapping(value = "/createGameWithPlayers", method = RequestMethod.GET)
     public String createGame(@RequestParam(required = false) LocalDate datePlayed, @RequestBody List<Integer> playerIds) {
 
         LocalDate gameDate = datePlayed;

@@ -22,8 +22,6 @@
             root
         </property>
 
-        <!-- List of XML mapping files -->
-        <mapping resource="Player.hbm.xml"/>
 
     </session-factory>
 </hibernate-configuration>
