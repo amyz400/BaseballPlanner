@@ -3,6 +3,8 @@ package com.baseballPlanner.models;
 import com.baseballPlanner.tx.dao.InningDao;
 import com.baseballPlanner.tx.dao.PlayerDao;
 
+import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -13,7 +15,7 @@ import java.util.*;
 public class GameModel {
 
     private int id;
-    private LocalDate datePlayed;
+    private java.sql.Date datePlayed;
     private Map<Integer, Map<PlayerDao, FieldPositionEnum>> inningMap;
 
     public GameModel() {
@@ -28,11 +30,13 @@ public class GameModel {
     }
 
     public LocalDate getDatePlayed() {
-        return datePlayed;
+
+        return datePlayed.toLocalDate();
     }
 
     public void setDatePlayed(LocalDate datePlayed) {
-        this.datePlayed = datePlayed;
+
+        this.datePlayed = Date.valueOf(datePlayed);
     }
 
     public Map<Integer, Map<PlayerDao, FieldPositionEnum>> getInningMap() {

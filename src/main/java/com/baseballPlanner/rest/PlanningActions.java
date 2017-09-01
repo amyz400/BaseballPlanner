@@ -37,7 +37,7 @@ public class PlanningActions {
     }
 
     @RequestMapping(value = "/createGameWithPlayers", method = RequestMethod.GET)
-    public String createGame(@RequestParam(required = false) LocalDate datePlayed, @RequestBody List<Integer> playerIds) {
+    public String createGame(@RequestParam(required = false) LocalDate datePlayed, @RequestParam List<Integer> playerIds) {
 
         LocalDate gameDate = datePlayed;
         if (null == gameDate) {

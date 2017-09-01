@@ -1,6 +1,7 @@
 package com.baseballPlanner.tx.dao;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Component;
 public class InningDao implements Serializable {
 
     private InningId inningId;
-    private Integer inningNumber;
     private String fieldPosition;
     private GameDao game;
     private PlayerDao player;
@@ -39,7 +39,8 @@ public class InningDao implements Serializable {
         this.game = game;
     }
 
-    @ManyToOne
+    @MapsId("playerId")
+    @ManyToOne(cascade=CascadeType.REMOVE)
     @JoinColumn(name = "PLAYER_ID", referencedColumnName = "id")
     public PlayerDao getPlayer() {
         return this.player;
@@ -47,17 +48,6 @@ public class InningDao implements Serializable {
 
     public void setPlayer(PlayerDao player) {
         this.player = player;
-    }
-
-
-
-    @Column(name = "INNING_NUMBER")
-    public Integer getInningNumber() {
-        return inningNumber;
-    }
-
-    public void setInningNumber(Integer inningNumber) {
-        this.inningNumber = inningNumber;
     }
 
     @Column(name = "FIELD_POSITION")

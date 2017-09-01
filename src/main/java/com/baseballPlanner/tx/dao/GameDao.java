@@ -4,7 +4,8 @@ package com.baseballPlanner.tx.dao;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -24,14 +25,14 @@ import javax.persistence.Table;
 public class GameDao implements Serializable{
 
     private int id;
-    private LocalDateTime datePlayed;
+    private LocalDate datePlayed;
     private List<InningDao> innings;
 
     public GameDao() {
         innings = new ArrayList<InningDao>();
     }
 
-    public GameDao(LocalDateTime datePlayed, List<InningDao> innings) {
+    public GameDao(LocalDate datePlayed, List<InningDao> innings) {
         this();
         this.datePlayed = datePlayed;
         this.getInnings().addAll(innings);
@@ -47,11 +48,13 @@ public class GameDao implements Serializable{
     public void setId(int id) { this.id = id; }
 
     @Column(name = "DATE_PLAYER",nullable = false)
-    public LocalDateTime getDatePlayed() {
+    public LocalDate getDatePlayed() {
+
         return datePlayed;
     }
 
-    public void setDatePlayed(LocalDateTime datePlayed) {
+    public void setDatePlayed(LocalDate datePlayed) {
+
         this.datePlayed = datePlayed;
     }
 

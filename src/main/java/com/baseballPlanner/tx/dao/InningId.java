@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 @Embeddable
 public class InningId implements Serializable{
 
+  @Column(name = "INNING_NUMBER")
+  private int inningNumber;
   @Column(name = "GAME_ID")
   private int gameId;
   @Column(name = "PLAYER_ID")
@@ -30,8 +32,16 @@ public class InningId implements Serializable{
     return playerId;
   }
 
-  public void setPlayerId(int player) {
+  public void setPlayerId(int playerId) {
     this.playerId = playerId;
+  }
+
+  public int getInningNumber() {
+    return inningNumber;
+  }
+
+  public void setInningNumber(int inningNumber) {
+    this.inningNumber = inningNumber;
   }
 
 }
